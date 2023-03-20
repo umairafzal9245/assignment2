@@ -3,8 +3,9 @@ import datetime
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
+import pickle
 
-data = stocks("SILK", start=datetime.date(2020, 1, 1), end=datetime.date.today())
+data = stocks("SILK", start=datetime.date(2015, 1, 1), end=datetime.date.today())
 
 features = ["Open", "High", "Low"]
 target = "Close"
@@ -16,6 +17,9 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 model = LinearRegression()
 model.fit(X_train, y_train)
+
+with open('model.pkl', 'wb') as f:
+    pickle.dump(model, f)
 
 print('LR Coefficients: \n', model.coef_)
 print('LR Intercept: \n', model.intercept_)
