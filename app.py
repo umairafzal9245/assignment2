@@ -3,23 +3,22 @@ import pickle
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, r2_score
-import yfinance as yf
 import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
+import random
 
 app = Flask(_name_)
 
-# Load the saved model
+data_df = None  # Global variable to store the data
+
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-# Create the Dash app
 dashboard_app = dash.Dash(_name_, server=app, url_base_pathname='/dashboard/')
 
-# Create the layout
 dashboard_app.layout = html.Div([
     html.H1('Stock Price Prediction'),
     html.Div([
@@ -28,7 +27,6 @@ dashboard_app.layout = html.Div([
         ], className='twelve columns')
     ], className='row'),
 
-    # write a code for performance metrics
     html.Div([
         html.Div([
             html.H3('Performance Metrics'),
@@ -40,12 +38,10 @@ dashboard_app.layout = html.Div([
     ], className='row'),
     dcc.Interval(
         id='interval-component',
-        interval=1*1000,  # in milliseconds
+        interval=1*1000,
         n_intervals=0
     )
 ])
-
-# Create the callback
 
 
 @dashboard_app.callback(
@@ -55,23 +51,29 @@ dashboard_app.layout = html.Div([
 )
 def update_graph_live(n):
 
-    # Fetch the data for the selected stock
-    # Replace this with your own logic to fetch live data for the selected stock
-    yf.pdr_override()
+    random_open = random.uniform(100, 150)
+    random_high = random.uniform(100, 150)
+    random_low = random.uniform(100, 150)
+    random_close = random.uniform(100, 150)
+    random_adj_close = random.uniform(100, 150)
+    random_volume = random.uniform(100, 150)
 
-    data_df = yf.download('AAPL', interval='1m', period='1wk', ignore_tz=True)
+    point = pd.DataFrame({"Open": [random_open], "High": [random_high], "Low": [random_low], "Close": [
+                         random_close], "Adj Close": [random_adj_close], "Volume": [random_volume]})
+    current_date = pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S')
+    point.index = [current_date]
 
-    # Transform the features using the same scaler used during training
+    global data_df
+    data_df = pd.concat([data_df, point])
+
     features = ["Open", "High", "Low", "Volume"]
     scaler = MinMaxScaler()
     data_transform = scaler.fit_transform(data_df[features])
     data_transform = pd.DataFrame(
         columns=features, data=data_transform, index=data_df.index)
 
-    # Use the model to make predictions
     predictions = model.predict(data_transform)
 
-    # Create the figure
     figure = {
         'data': [
             {'x': data_df.index,
@@ -86,7 +88,6 @@ def update_graph_live(n):
         }
     }
 
-    # Calculate the error
     error = mean_squared_error(data_df['Adj Close'], predictions)
     r2score = r2_score(data_df['Adj Close'], predictions)
 
@@ -100,31 +101,26 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Get the request data as a dictionary
+
     data = request.get_json(force=True)
 
-    # Convert the dictionary to a pandas dataframe
     data_df = pd.DataFrame({"Open": [data['Open']], "High": [data['High']], "Low": [data['Low']], "Close": [
                            data['Close']], "Adj Close": [data['Adj Close']], "Volume": [data['Volume']]})
 
-    # Transform the features using the same scaler used during training
     features = ["Open", "High", "Low", "Volume"]
     scaler = MinMaxScaler()
     data_transform = scaler.fit_transform(data_df[features])
     data_transform = pd.DataFrame(
         columns=features, data=data_transform, index=data_df.index)
 
-    # Use the model to make predictions
     predictions = model.predict(data_transform)
 
     actual = [data['Adj Close']]
 
-    # Calculate the error
     error = mean_squared_error(actual, predictions)
 
-    # create a json object to return
     output = {'predicted': predictions.tolist()[0], 'MSE': error}
-    # Convert the predictions to a list and return as JSON
+
     return jsonify(output)
 
 
