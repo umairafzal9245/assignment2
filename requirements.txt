@@ -1,2 +1,5 @@
 yfinance
 sklearn
+pandas
+lint
+black
