@@ -1,5 +1,5 @@
 yfinance
-sklearn
+scikit-learn
 pandas
 lint
 black
