@@ -1,2 +1,5 @@
-psx-data-reader
-sklearn
+yfinance
+scikit-learn
+pandas
+lint
+black
