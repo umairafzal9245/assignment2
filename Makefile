@@ -3,4 +3,4 @@ install:
 		pip install -r requirements.txt
 
 trainmodel:
-		python model.py --ticker SILK
+		python model.py --ticker UBER

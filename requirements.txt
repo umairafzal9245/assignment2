@@ -1,2 +1,2 @@
-psx-data-reader
+yfinance
 sklearn

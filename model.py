@@ -1,6 +1,7 @@
-from psx import stocks
-import datetime
+import yfinance as yf
+import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 import pickle
@@ -17,13 +18,24 @@ if __name__ == '__main__':
         raise ValueError('No ticker symbol provided')
 
     symbol = args.ticker
+    
+    yf.pdr_override()
 
-    data = stocks(symbol, start=datetime.date(2015, 1, 1), end=datetime.date.today())
+    data = yf.download(symbol,interval='1m',period='1wk',ignore_tz=True)
+   
+    data.index = pd.to_datetime(data.index)
+    data.index = data.index.tz_localize(None)
+    data.index = data.index.strftime('%Y-%m-%d %H:%M:%S')
+    
 
-    features = ["Open", "High", "Low"]
-    target = "Close"
+    features = ["Open", "High", "Low", "Volume"]
+    target = "Adj Close"
 
-    X = data[features]
+    scaler = MinMaxScaler()
+    feature_transform = scaler.fit_transform(data[features])
+    feature_transform= pd.DataFrame(columns=features, data=feature_transform, index=data.index)
+    
+    X = feature_transform
     y = data[target]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
