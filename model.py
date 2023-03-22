@@ -10,19 +10,15 @@ import argparse
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--ticker', type=str, help='Ticker symbol')
-    args = parser.parse_args()
-
-    if args.ticker is None:
-        raise ValueError('No ticker symbol provided')
-
-    symbol = args.ticker
+    symbols = ['AAPL','AMZN','GOOG','TSLA']
     
     yf.pdr_override()
 
-    data = yf.download(symbol,interval='1m',period='1wk',ignore_tz=True)
-   
+    data = pd.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+
+    for symbol in symbols:
+        data = data.append(yf.download(symbol, interval='1m', period='1wk', ignore_tz=True))
+    
     data.index = pd.to_datetime(data.index)
     data.index = data.index.tz_localize(None)
     data.index = data.index.strftime('%Y-%m-%d %H:%M:%S')
