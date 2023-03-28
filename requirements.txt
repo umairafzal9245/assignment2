@@ -6,4 +6,3 @@ black
 flask
 plotly
 dash
-numpy
