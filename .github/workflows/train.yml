@@ -1,7 +1,7 @@
 name: workflow for training the model
 on:
   push:
-    branches: [ master ]
+    branches: [ developer-1 ]
 jobs:
  build:
     runs-on: ubuntu-latest
