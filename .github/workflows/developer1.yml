@@ -1,11 +1,10 @@
 name: workflow for training the model
 on:
-  pull_request:
-    types: [closed]
+  push:
+    branches: [developer-1]
 jobs:
  build:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8.16
