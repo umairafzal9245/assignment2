@@ -20,7 +20,7 @@ if __name__ == '__main__':
         data = data.append(yf.download(
             symbol, interval='1m', period='1wk', ignore_tz=True))
 
-    print(data.shape)
+    print("data shpae",data.shape)
 
     data.index = pd.to_datetime(data.index)
     data.index = data.index.tz_localize(None)
