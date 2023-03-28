@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    
+    environment {
+        dockerImage = ''
+        registry = 'sameerkhan22/mypythonapp'
+        registryCredential = 'dockerhub_id'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/umairafzal9245/i190570_i190517_Assignment2']])
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build registry
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    docker.run('-p 8080:80 mypythonapp:latest')
+                }
+            }
+        }
+        
+    }
+}
