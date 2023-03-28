@@ -1,4 +1,4 @@
-name: workflow for training the model
+name: workflow for developer 2
 on:
   push:
     branches: [developer-2]
